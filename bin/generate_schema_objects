@@ -19,16 +19,31 @@ if (!$autoLoadFound) {
 use GraphQL\Client;
 use GraphQL\SchemaGenerator\SchemaClassGenerator;
 
-$endpointUrl = readline('GraphlQL endpoint URL: ');
+$options = getopt('', ['endpoint::', 'authname::', 'authvalue::', 'writedir::', 'help::']);
+
+if ( isset( $options['help'] ) ) {
+	echo "Generate GraphQL schema objects via the introspection feature of GraphQL APIs. \n\n";
+	echo "Usage: php vendor/bin/generate_schema_objects [args...] \n\n";
+	echo "If arguments are not passed, an interactive prompt will request values\n\n";
+	echo "--endpoint  <uri> The GraphQL endpoint URI \n";
+	echo "--authname  <val> The Authorization header name \n";
+	echo "--authvalue <val> The Authorization header value \n";
+	echo "--writedir  <val> Custom classes writing dir \n";
+	echo "--help            Generates this help output \n";
+
+	exit;
+}
+
+$endpointUrl = empty( $options['endpoint'] ) ? readline('GraphlQL endpoint URL: ') : $options['endpoint'];
 
 $authHeaders    = [];
-$authHeaderName = readline('Authorization header name: ');
+$authHeaderName = isset( $options['authname'] ) ? $options['authname'] : readline('Authorization header name: ');
 if (!empty($authHeaderName)) {
-    $authHeaderValue = readline('Authorization header value: ');
+    $authHeaderValue = empty( $options['authvalue'] ) ? readline('Authorization header value: ') : $options['authvalue'];
     $authHeaders = [$authHeaderName => $authHeaderValue];
 }
 
-$customWriteDir = readline('Custom classes writing dir (optional): ');
+$customWriteDir = isset( $options['writedir'] ) ? $options['writedir'] : readline('Custom classes writing dir (optional): ');
 if (empty($customWriteDir)) $customWriteDir = '';
 
 $client  = new Client($endpointUrl, $authHeaders);
